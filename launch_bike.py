@@ -216,19 +216,6 @@ def fetch_mobike(lo, la):
         return bikes
 
 def bike_job():
-    """
-    length = 0.0007
-    steps = 20
-    min_lo, max_la = 121.494041, 31.264781
-    max_lo, min_la = 121.507761, 31.249334
-    board = []
-    for i in range(steps):
-        for j in range(steps):
-            lo = min_lo + i * length
-            la = max_la - j * length
-            box = { 'lo': lo, 'la': la, 'ofo': [], 'mobike': [] }
-            board.append(box)
-    """
     board = [{'lo':t[0], 'la':t[1], 'ofo':[], 'mobike': []} for t in AREAS]
     for brand in ['mobike', 'ofo']:
         for point in board:
@@ -269,7 +256,7 @@ def bike_job():
     df = pd.DataFrame(center_list, columns=['create_date','longitude','latitude','mobike','ofo','total'])
     new = pd.concat([history, df])
     new.to_excel(path, index=False)
-    new.to_json('/var/www/html/data/bike.json', orient='values')
+    new.to_json('/var/www/html/bike/data/bike.json', orient='values')
 
 
 if __name__ == '__main__':

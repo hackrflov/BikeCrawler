@@ -9,11 +9,18 @@
 </head>
 <body>
     <?php
+    // read file
     $filename = 'data/bike.json';
     $handle = fopen($filename, "r");
     $contents = fread($handle, filesize($filename));
     fclose($handle);
     $data = json_decode($contents);
+    // choose data in choosed date
+    $data = array_filter($data, function($v) {
+        return strpos($v[0], '09-26') !== FALSE;
+    });
+    $data = array_values($data);
+    // format data and create timeline
     $timeline = array();
     foreach ($data as $key => $value) {
         $time = $value[0];
@@ -44,7 +51,7 @@
       </button>
       <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
         <?php
-        foreach ($timeline as $time) {
+        foreach (array_reverse($timeline) as $time) {
             echo "<a class='dropdown-item' href='#'>{$time}</a>";
         }
         ?>
@@ -72,10 +79,12 @@
     </script>
     <script type="text/javascript">
         $(document).ready( function () {
-            var time = $('#dropdownMenu a:last-child').text();
+            // init and show latest data
+            var time = $('#dropdownMenu a:first-child').text();
             window.init_time = time;
             $('#map-wrap').data('time', time);
 
+            // create snapshots to distinct data groups
             var data = JSON.parse( <?php echo "'".json_encode($data)."'" ?> );
             snapshots = {}
             for (i=0; i<data.length; i++) {
@@ -87,8 +96,8 @@
                     snapshots[time] = []
                 }
             }
+            // set echarts configuration
             chart = echarts.init(document.getElementById('map-wrap'));
-            console.log(window.init_time);
             var option = {
                 backgroundColor: '#404a59',
                 title: {
@@ -96,7 +105,7 @@
                     subtext: 'Developed by hackrflov',
                     left: 'center',
                     textStyle: {
-                        color: '#fff'
+                        color: '#999999'
                     }
                 },
                 tooltip: {
@@ -107,137 +116,104 @@
                     zoom: 15,
                     roam: true,
                     mapStyle: {
-                        styleJson: [
-                            {
-                                'featureType': 'water',
-                                'elementType': 'all',
-                                'stylers': {
-                                    'color': '#044161'
-                                }
-                            },
-                            {
-                                'featureType': 'land',
-                                'elementType': 'all',
-                                'stylers': {
-                                    'color': '#004981'
-                                }
-                            },
-                            {
-                                'featureType': 'boundary',
-                                'elementType': 'geometry',
-                                'stylers': {
-                                    'color': '#064f85'
-                                }
-                            },
-                            {
-                                'featureType': 'railway',
-                                'elementType': 'all',
-                                'stylers': {
-                                    'visibility': 'off'
-                                }
-                            },
-                            {
-                                'featureType': 'highway',
-                                'elementType': 'geometry',
-                                'stylers': {
-                                    'color': '#004981'
-                                }
-                            },
-                            {
-                                'featureType': 'highway',
-                                'elementType': 'geometry.fill',
-                                'stylers': {
-                                    'color': '#005b96',
-                                    'lightness': 1
-                                }
-                            },
-                            {
-                                'featureType': 'highway',
-                                'elementType': 'labels',
-                                'stylers': {
-                                    'visibility': 'off'
-                                }
-                            },
-                            {
-                                'featureType': 'arterial',
-                                'elementType': 'geometry',
-                                'stylers': {
-                                    'color': '#004981'
-                                }
-                            },
-                            {
-                                'featureType': 'arterial',
-                                'elementType': 'geometry.fill',
-                                'stylers': {
-                                    'color': '#00508b'
-                                }
-                            },
-                            {
-                                'featureType': 'poi',
-                                'elementType': 'all',
-                                'stylers': {
-                                    'visibility': 'off'
-                                }
-                            },
-                            {
-                                'featureType': 'green',
-                                'elementType': 'all',
-                                'stylers': {
-                                    'color': '#056197',
-                                    'visibility': 'off'
-                                }
-                            },
-                            {
-                                'featureType': 'subway',
-                                'elementType': 'all',
-                                'stylers': {
-                                    'visibility': 'off'
-                                }
-                            },
-                            {
-                                'featureType': 'manmade',
-                                'elementType': 'all',
-                                'stylers': {
-                                    'visibility': 'off'
-                                }
-                            },
-                            {
-                                'featureType': 'local',
-                                'elementType': 'all',
-                                'stylers': {
-                                    'visibility': 'off'
-                                }
-                            },
-                            {
-                                'featureType': 'arterial',
-                                'elementType': 'labels',
-                                'stylers': {
-                                    'visibility': 'off'
-                                }
-                            },
-                            {
-                                'featureType': 'boundary',
-                                'elementType': 'geometry.fill',
-                                'stylers': {
-                                    'color': '#029fd4'
-                                }
-                            },
-                            {
-                                'featureType': 'building',
-                                'elementType': 'all',
-                                'stylers': {
-                                    'color': '#1a5787'
-                                }
-                            },
-                            {
-                                'featureType': 'label',
-                                'elementType': 'all',
-                                'stylers': {
-                                    'visibility': 'off'
-                                }
+                      styleJson: [{
+                            'featureType': 'water',
+                            'elementType': 'all',
+                            'stylers': {
+                                'color': '#d1d1d1'
                             }
-                        ]
-                    }
+                        }, {
+                            'featureType': 'land',
+                            'elementType': 'all',
+                            'stylers': {
+                                'color': '#f3f3f3'
+                            }
+                        }, {
+                            'featureType': 'railway',
+                            'elementType': 'all',
+                            'stylers': {
+                                'visibility': 'off'
+                            }
+                        }, {
+                            'featureType': 'highway',
+                            'elementType': 'all',
+                            'stylers': {
+                                'color': '#fdfdfd'
+                            }
+                        }, {
+                            'featureType': 'highway',
+                            'elementType': 'labels',
+                            'stylers': {
+                                'visibility': 'off'
+                            }
+                        }, {
+                            'featureType': 'arterial',
+                            'elementType': 'geometry',
+                            'stylers': {
+                                'color': '#fefefe'
+                            }
+                        }, {
+                            'featureType': 'arterial',
+                            'elementType': 'geometry.fill',
+                            'stylers': {
+                                'color': '#fefefe'
+                            }
+                        }, {
+                            'featureType': 'poi',
+                            'elementType': 'all',
+                            'stylers': {
+                                'visibility': 'off'
+                            }
+                        }, {
+                            'featureType': 'green',
+                            'elementType': 'all',
+                            'stylers': {
+                                'visibility': 'off'
+                            }
+                        }, {
+                            'featureType': 'subway',
+                            'elementType': 'all',
+                            'stylers': {
+                                'visibility': 'off'
+                            }
+                        }, {
+                            'featureType': 'manmade',
+                            'elementType': 'all',
+                            'stylers': {
+                                'color': '#d1d1d1'
+                            }
+                        }, {
+                            'featureType': 'local',
+                            'elementType': 'all',
+                            'stylers': {
+                                'color': '#d1d1d1'
+                            }
+                        }, {
+                            'featureType': 'arterial',
+                            'elementType': 'labels',
+                            'stylers': {
+                                'visibility': 'off'
+                            }
+                        }, {
+                            'featureType': 'boundary',
+                            'elementType': 'all',
+                            'stylers': {
+                                'color': '#fefefe'
+                            }
+                        }, {
+                            'featureType': 'building',
+                            'elementType': 'all',
+                            'stylers': {
+                                'color': '#d1d1d1'
+                            }
+                        }, {
+                            'featureType': 'label',
+                            'elementType': 'labels.text.fill',
+                            'stylers': {
+                                'color': '#999999'
+                            }
+                        }
+                    ]}
                 },
                 series: [
                     {
@@ -262,10 +238,14 @@
                             normal: {
                                 color: function (val) {
                                     var diff = val['data'][3];
+                                    var opacity = Math.max(0.5, Math.min(1.0, Math.abs(diff/8)));
+                                    console.log(''+diff+';'+opacity);
                                     if (diff > 0) {
-                                        return '#FF3333';
+                                        return 'rgba(228,19,43,'+opacity+')';
+                                    } else if (diff <0) {
+                                        return '#009EE0';
                                     } else {
-                                        return '#ddb926';
+                                        return 'rgba(221,185,38,'+opacity+')';
                                     }
                                 }
                             }
